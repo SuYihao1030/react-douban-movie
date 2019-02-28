@@ -1,0 +1,1 @@
+export const GET_NOW_MOVIE_LIST = "get_now_movie_list";
