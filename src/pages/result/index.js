@@ -2,18 +2,19 @@ import React, { Component, Fragment } from 'react';
 import { connect } from 'react-redux';
 import { withRouter } from 'react-router-dom';
 import { actionCreators } from './store';
-import { NavBar, Icon } from 'antd-mobile';
+import { NavBar, Icon, WhiteSpace, Button } from 'antd-mobile';
 import List from '../../components/list';
 
 class Result extends Component {
   componentDidMount() {
-    this.props.searchMovie(this.props.match.params.key);
+    const { list, start, searchMovie, match } = this.props;
+    (list.size === 0) && searchMovie(match.params.key, start);
   }
   componentWillUnmount() {
     this.props.clearSearchInfo();
   }
   render() {
-    const { title, list } = this.props;
+    const { title, list, start, total, searchMovie, match } = this.props;
     return (
       <Fragment>
         <NavBar
@@ -31,6 +32,22 @@ class Result extends Component {
             />
           ))
         }
+        <WhiteSpace size="lg"/>
+        {
+          (list) && (list.size !== 0) && (
+            <Button 
+              type="primary"  
+              size="small" 
+              style={{width: "100px", margin: "0 auto"}}
+              ref={(more) => {this.more = more}}
+              onClick={() => {searchMovie(match.params.key, start + 10);}}
+              disabled={ list.size >= total ? true : false }
+            >
+              { list.size >= total ? "到底了" : "更多" }
+            </Button>
+          )
+        }
+        <WhiteSpace size="lg"/>
       </Fragment>
     );
   }
@@ -38,12 +55,14 @@ class Result extends Component {
 
 const mapState = (state) => ({
   title: state.getIn(['result', 'title']),
-  list: state.getIn(['result', 'list'])
+  list: state.getIn(['result', 'list']),
+  total: state.getIn(['result', 'total']),
+  start: state.getIn(['result', 'start'])
 })
 
 const mapDispatch = (dispatch) => ({
-  searchMovie(key) {
-    dispatch(actionCreators.searchMovie(key));
+  searchMovie(key, start) {
+    dispatch(actionCreators.searchMovie(key, start));
   },
   clearSearchInfo() {
     dispatch(actionCreators.clearSearchInfo());

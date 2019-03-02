@@ -13,7 +13,7 @@ const getMovieInfoAction = (data) => ({
 
 export const getMovieInfo = (id) => (dispatch) => {
   Axios.get("/movie/subject/" + id ).then((res) => {
-    console.log(res.data);
+    //console.log(res.data);
     dispatch(getMovieInfoAction(res.data));
   }).catch((err) => {
     console.error(err);

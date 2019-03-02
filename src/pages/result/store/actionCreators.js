@@ -5,11 +5,13 @@ import { fromJS } from 'immutable';
 export const searchAction = (data) => ({
   type: actionTypes.SEARCH_MOVIE,
   list: fromJS(data.subjects),
-  title: data.title
+  title: data.title,
+  total: data.total,
+  start: data.start
 })
 
-export const searchMovie = (value) => (dispatch) => {
-  Axios.get("/movie/search?q=" + value +"&start=0&count=10").then((res) => {
+export const searchMovie = (value, start) => (dispatch) => {
+  Axios.get("/movie/search?q=" + value +"&start=" + start + "&count=10").then((res) => {
     console.log(res.data);
     dispatch(searchAction(res.data));
   }).catch((err) => {
