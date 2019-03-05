@@ -1,68 +1,123 @@
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## React-douban-movie
 
-## Available Scripts
+基于React全家桶的练习demo
 
-In the project directory, you can run:
+### 部署步骤
 
-### `npm start`
+```
+git clone https://github.com/SuYihao1030/react-douban-movie.git
+cd react-douban-movie
+yarn install
+yarn start
+```
 
-Runs the app in the development mode.<br>
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+### 前言
 
-The page will reload if you make edits.<br>
-You will also see any lint errors in the console.
+由于豆瓣api的缘故，该项目并没有完成，后改为 `https://douban.uieee.com` ，但搜索 api 获取到的结果为空。故搜索功能无法使用。
 
-### `npm test`
+在此简单记录一下自己对 React 全家桶的学习。
 
-Launches the test runner in the interactive watch mode.<br>
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### React
 
-### `npm run build`
+> React 用于构建用户界面的 JavaScript 库
 
-Builds the app for production to the `build` folder.<br>
-It correctly bundles React in production mode and optimizes the build for the best performance.
+#### Virtual Dom
 
-The build is minified and the filenames include the hashes.<br>
-Your app is ready to be deployed!
+当 `React` 中组件的 `props` 或 `state` 数据发生改变时，组件的 `render` 函数就会重新执行，组件就会重新渲染。而在 `React` 中重新渲染的性能是十分高的，就是因为引入了一个虚拟 DOM。
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+传统 WEB 应用中，每次数据更新，需要更新页面时，都需要去对 DOM 进行更新，但是对 DOM 操作是十分昂贵的，为了减少对于真实 DOM 的操作，所以便出现了 虚拟 DOM。
 
-### `npm run eject`
+React WEB 应用中，每次数据更新，就会重新生成虚拟 DOM，和上一次生产的虚拟 DOM 做比对，对发生了变化的部分进行更新。这样减少了很多不必要的更新，大大提升了性能。
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+步骤可以概括成如下：
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+ 	1. 出现 state 数据
+ 	2. 出现 JSX 模板
+ 	3. 生成虚拟 DOM
+ 	4. 数据 + 模版 结合，生成真实的 DOM，在页面上显示
+ 	5. state 数据发生改变
+ 	6. 生成新的虚拟 DOM
+ 	7. 比较原始虚拟DOM 和 新的虚拟 DOM 的区别
+ 	8. 直接操作真实 DOM，更改第7步找到的区别部分
 
-Instead, it will copy all the configuration files and the transitive dependencies (Webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+#### 生命周期函数
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+- getDerivedStateFromProps
+  - 触发时间：组件每次被 rerender 的时候，包括在组件构建之后（render 之前最后执行），每次获取新的 props 或 state 之后
+  - 每次接受新的 props 之后都会返回一个对象作为新的 state，返回 null 则说明不需要更新 state
+  - 配合componentDidUpdate，可以覆盖componentWillReceiveProps的所有用法
+- render
+- componentDidMount
+  - 请求异步加载的数据
+  - 添加事件监听
+- shouldComponentUpdata
+  - 防止父组件渲染导致子组件做不需要的渲染
+  - PureComponent替代Component      需要(immutable.js)
+- getSnapshotBeforeUpdate
+  - 触发时间:  update 发生的时候，在 render 之后，在组件 dom 渲染之前
+  - 返回一个值，作为componentDidUpdate的第三个参数
+  - 配合componentDidUpdate, 可以覆盖componentWillUpdate的所有用法
+- componentDidUpdata
+- componentWillUnmount
 
-## Learn More
+> 在 v16.3 之后，取消了以下三个生命周期：
+>
+> * componentWillMount
+> * componentWillReceiveProps
+> * componentWillUpdate
+>
+> 当然，在整个16版本中，还是可以使用这三个周期的，但会标记为 unsafe
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```javascript
+static getDerivedStateFromProps(nextProps, prevState) {
+    4. Updating state based on props
+    7. Fetching external data when props change
+  }
+  constructor() {
+	1. Initializing state
+  }
+  componentWillMount() {
+  	// 1. Initializing state
+  	// 2. Fetching external data
+  	// 3. Adding event listeners (or subscriptions)
+  }
+  componentDidMount() {
+	2. Fetching external data
+	3. Adding event listeners (or subscriptions)
+  }
+  componentWillReceiveProps() {
+  	// 4. Updating state based on props
+  	// 6. Side effects on props change
+  	// 7. Fetching external data when props change
+  }
+  shouldComponentUpdate() {
+  }
+  componentWillUpdate(nextProps, nextState) {
+  	// 5. Invoking external callbacks
+  	// 8. Reading DOM properties before an update
+  	
+  }
+  render() {
+  }
+  getSnapshotBeforeUpdate(prevProps, prevState) {
+	8. Reading DOM properties before an update
+  }
+  componentDidUpdate(prevProps, prevState, snapshot) {
+	5. Invoking external callbacks
+	6. Side effects on props change
+  }
+  
+  componentWillUnmount() {
+  }
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
 
-### Code Splitting
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/code-splitting
+### Redux
 
-### Analyzing the Bundle Size
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size
 
-### Making a Progressive Web App
+### React-router
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app
 
-### Advanced Configuration
 
-This section has moved here: https://facebook.github.io/create-react-app/docs/advanced-configuration
-
-### Deployment
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/deployment
-
-### `npm run build` fails to minify
-
-This section has moved here: https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify
